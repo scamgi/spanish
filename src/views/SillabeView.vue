@@ -63,7 +63,7 @@ export default defineComponent({
 
 <template>
   <main>
-    <div class="form">
+    <div class="form" v-show="!showRisultato">
       {{ parolaAttuale.parola }} <br/>
       <input v-model.trim="sillabeUtente" @keyup.enter="verifica">
       <button @click="verifica">Verifica</button>
@@ -87,7 +87,7 @@ export default defineComponent({
 </template>
 
 <style scoped>
-.form {
+.form, .risultato {
   padding-top: 20px;
 }
 .sillabe {
