@@ -11,30 +11,17 @@ export default defineComponent({
       parolaAttuale: g,
       sillabeUtente: '',
       so: sillabeOriginali,
-      sillabeDaTestare: shuffle(sillabeOriginali)
+      sillabeDaTestare: shuffle(sillabeOriginali),
+      isCorretto: true,
+      showRisultato: false
     }
   },
   created() {
-    this.aggiornaParola();
+    this.aggiornaParolaAttuale();
   },
   methods: {
-    aggiornaParola() {
-      if (this.sillabeDaTestare.length <= 0) {
-        this.parolaAttuale.parola = 'Tutto testato.';
-        return;
-      }
-      this.parolaAttuale = {
-        parola: this.sillabeDaTestare[0].parola,
-        sillabe: this.sillabeDaTestare[0].sillabe
-      }
-      this.sillabeUtente = '';
-    },
-    test(event: Event) {
-      if (this.sillabeDaTestare.length <= 0) {
-        this.parolaAttuale.parola = 'Tutto testato.';
-        return;
-      }
-      if (this.sillabeUtente === this.sillabeDaTestare[0].sillabe) {
+    aggiornaSillabeDaTestare() {
+      if (this.isCorretto) {
         // caso input utente giusto
         this.sillabeDaTestare.shift();
       }
@@ -46,7 +33,29 @@ export default defineComponent({
         this.sillabeDaTestare.splice(randomIndex, 0, this.parolaAttuale);
         this.sillabeDaTestare.shift();
       }
-      this.aggiornaParola();
+    },
+    aggiornaParolaAttuale() {
+      if (this.sillabeDaTestare.length <= 0) {
+        this.parolaAttuale.parola = 'Tutto testato.';
+        return;
+      }
+      this.parolaAttuale = {
+        parola: this.sillabeDaTestare[0].parola,
+        sillabe: this.sillabeDaTestare[0].sillabe
+      }
+      this.sillabeUtente = '';
+    },
+    verifica(event: Event) {
+      if (this.sillabeDaTestare.length <= 0) {
+        return;
+      }
+      this.isCorretto = this.sillabeUtente === this.sillabeDaTestare[0].sillabe;
+      this.showRisultato = true;
+    },
+    next() {
+      this.aggiornaSillabeDaTestare();
+      this.aggiornaParolaAttuale();
+      this.showRisultato = false;
     }
   }
 })
@@ -56,8 +65,17 @@ export default defineComponent({
   <main>
     <div class="form">
       {{ parolaAttuale.parola }} <br/>
-      <input v-model.trim="sillabeUtente" @keyup.enter="test">
-      <button @click="test">Test</button>
+      <input v-model.trim="sillabeUtente" @keyup.enter="verifica">
+      <button @click="verifica">Verifica</button>
+    </div>
+    <div class="risultato" v-show="showRisultato">
+      <div class="corretto" v-show="isCorretto">
+        Giusto
+      </div>
+      <div class="sbagliato" v-show="!isCorretto">
+        La risposta giusta è {{ parolaAttuale.sillabe }}
+      </div>
+      <button @click="next">Next</button>
     </div>
     <div class="sillabe">
       {{ so }}
@@ -74,5 +92,12 @@ export default defineComponent({
 }
 .sillabe {
   padding-top: 20px;
+}
+.sbagliato {
+  color: red;
+}
+
+.corretto {
+  color: green;
 }
 </style>
